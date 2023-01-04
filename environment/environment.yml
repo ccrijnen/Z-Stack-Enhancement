@@ -1,0 +1,30 @@
+name: dl
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - cookiecutter=1.7.3=pyhd3eb1b0_0
+  - cudatoolkit=11.3.1=h2bc3f7f_2
+  - h5py=3.7.0=py39h737f45e_0
+  - libtiff=4.4.0=hecacb30_0
+  - nibabel=4.0.2=pyhd8ed1ab_0
+  - numpy=1.21.5=py39h6c91a56_3
+  - pandas=1.4.4=py39h6a678d5_0
+  - pip=22.2.2=py39h06a4308_0
+  - python=3.9.6=h12debd9_1
+  - pytorch=1.11.0=py3.9_cuda11.3_cudnn8.2.0_0
+  - pytorch-lightning=1.7.2=pyhd8ed1ab_0
+  - scikit-image=0.19.2=py39h51133e4_0
+  - scikit-learn=1.1.1=py39h6a678d5_0
+  - tifffile=2021.7.2=pyhd3eb1b0_2
+  - torchaudio=0.11.0=py39_cu113
+  - torchmetrics=0.10.0=pyhd8ed1ab_0
+  - torchvision=0.12.0=py39_cu113
+  - tqdm=4.64.1=py39h06a4308_0
+  - pip:
+    - git+https://github.com/FZJ-INM1-BDA/celldetection.git
+    - git+https://github.com/FZJ-INM1-BDA/zfocus.git
+    - opencv-python==4.6.0.66
+    - git+https://github.com/FZJ-INM1-BDA/tiffs.git
+    - torch-fidelity==0.3.0

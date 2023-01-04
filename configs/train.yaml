@@ -11,10 +11,10 @@ defaults:
   - log_dir: default.yaml
 
   # experiment configs allow for version control of specific configurations
-  # e.g. best hyperparameters for each combination of model and datamodule
+  # e.g. the best hyperparameters for each combination of model and datamodule
   - experiment: null
 
-  # debugging config (enable through command line, e.g. `python train.py debug=default)
+  # debugging config (enable through command line, e.g. `python train.py )
   - debug: null
 
   # config for hyperparameter optimization
@@ -35,8 +35,7 @@ original_work_dir: ${hydra:runtime.cwd}
 
 # path to folder with data
 
-data_dir: ${original_work_dir}/data/
-
+data_dir: ${original_work_dir}/data
 
 # pretty print config at the start of the run using Rich library
 print_config: True

@@ -64,7 +64,7 @@ python scripts/train.py
 ```
 Or, if you want to submit the training job to a submit cluster node via slurm, run:
 ```bash
-sbatch scripts/train_juwels.sbatch
+sbatch scripts/train_jureca_leishmania.sbatch
 ```
 > * The experiments, evaluations, etc., are stored under the `logs` directory.
 > * The default experiments tracking system is tensorboard. The `tensorboard` directory is contained in `logs`. To view a user friendly view of the experiments, run:
@@ -115,17 +115,17 @@ git push; git push --tags
 ├── docs                                 <- Directory for Sphinx documentation in rst or md.
 │
 ├── environment                          <- Computing environment
-│   ├── requirements                            <- Python packages and JSC modules requirements
+│   ├── requirements                            <- Python packages and JSC modules requirements
 │   │
-│   ├── activate.sh                             <- Activation script
-│   ├── config.sh                               <- Environment configurations  
-│   ├── create_kernel.sh                        <- Jupyter Kernel script
-│   └── setup.sh                                <- Environment setup script
+│   ├── activate.sh                             <- Activation script
+│   ├── config.sh                               <- Environment configurations  
+│   ├── create_kernel.sh                        <- Jupyter Kernel script
+│   └── setup.sh                                <- Environment setup script
 │
 ├── logs
-│   ├── experiments                      <- Logs from experiments
-│   ├── slurm                            <- Slurm outputs and errors
-│   └── tensorboard/mlruns/...           <- Training monitoring logs
+│   ├── experiments                      <- Logs from experiments
+│   ├── slurm                            <- Slurm outputs and errors
+│   └── tensorboard                      <- Training monitoring logs
 |
 ├── models                               <- Trained and serialized models, model predictions
 |
@@ -139,7 +139,7 @@ git push; git push --tags
 │   ├── test.py                                 <- Run testing
 │   └── train.py                                <- Run training
 │
-├── src/ml_pipeline_template             <- Source code
+├── src/zse                              <- Source code
 │   ├── datamodules                             <- Lightning datamodules
 │   ├── models                                  <- Lightning models
 │   ├── utils                                   <- Utility scripts

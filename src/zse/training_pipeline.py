@@ -14,6 +14,7 @@ from pytorch_lightning.loggers import LightningLoggerBase
 from zse import utils
 
 log = utils.get_logger(__name__)
+os.environ["HYDRA_FULL_ERROR"] = "1"
 
 
 def train(config: DictConfig) -> Optional[float]:
@@ -44,7 +45,7 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Init lightning model
     log.info(f"Instantiating model <{config.model._target_}>")
-    model: LightningModule = hydra.utils.instantiate(config.model)
+    model: LightningModule = hydra.utils.instantiate(config.model, _recursive_=True)
 
     # Init lightning callbacks
     callbacks: List[Callback] = []

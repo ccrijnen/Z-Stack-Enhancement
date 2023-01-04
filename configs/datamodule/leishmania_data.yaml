@@ -1,0 +1,8 @@
+_target_: zse.datamodules.leishmania_generalization.LeishmaniaDataModule
+
+data_dir: "/p/fastdata/bigbrains/personal/crijnen1/data/COMI/Leishmania/Leishmania_blurred_train/*.jpg"
+imsize: null
+scale: null
+batch_size: 1
+num_workers: 32
+pin_memory: True

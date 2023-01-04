@@ -1,0 +1,10 @@
+_target_: zse.datamodules.bpaec.BPAECDataModule2D
+
+data_dir: "/p/fastdata/bigbrains/personal/crijnen1/data/COMI/BPAEC/"
+dset: "nucleus"
+file_glob: "/*/*.jpg"
+train_test_split: 0.8
+resize_size: null
+batch_size: 1
+num_workers: 32
+pin_memory: True

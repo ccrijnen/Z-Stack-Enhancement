@@ -1,6 +1,7 @@
 import subprocess
 import yaml
 
+
 def save_initial_data():
     version_name = 'v1'
     data_path = input('Data path:')

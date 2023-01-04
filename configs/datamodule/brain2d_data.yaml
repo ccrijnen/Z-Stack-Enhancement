@@ -1,0 +1,13 @@
+_target_: zse.datamodules.brain_1micron.BrainDataModule2D
+
+data_dir_train: "/p/fastdata/bigbrains/personal/crijnen1/data/bigbrain_1micron/29/train/blurry/*.hdf5"
+val_length: 2000
+resample: False
+z_target: 29
+z_depth: 29
+binary: False
+imsize: 256
+random_crop: True
+batch_size: 32
+num_workers: 32
+pin_memory: True

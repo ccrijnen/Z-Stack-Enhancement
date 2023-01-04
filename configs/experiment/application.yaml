@@ -1,0 +1,20 @@
+# @package _global_
+
+# to execute this experiment run:
+# python scripts/train.py experiment=application
+
+defaults:
+  - override /datamodule: brain_volume.yaml
+  - override /model: adain_unet_2d.yaml
+  - override /callbacks: adain_callbacks.yaml
+  - override /logger: tensorboard.yaml
+  - override /trainer: ddp.yaml
+
+name: "application"
+
+seed: 42
+
+trainer:
+#  gpus: 2
+  min_epochs: 100
+  max_epochs: 100
