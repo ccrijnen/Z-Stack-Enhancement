@@ -12,10 +12,8 @@ from zse.models.adain_module import AdaINLitModule2D
 from zse.models.components.adain_unet import AdaINUNet
 from zse.models.components.unet import UNet
 
-home = "/p/fastdata/bigbrains/personal/crijnen1"
-data_root = f"{home}/data"
-zse_path = f"{home}/Z-Stack-Enhancement"
-exp_path = f"{zse_path}/logs/experiments/runs/brain_1micron"
+data_root = "/p/fastdata/bigbrains/personal/crijnen1/data"
+exp_path = f"../../models/brain"
 
 vgg19 = models.vgg19(pretrained=True)
 norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -24,14 +22,10 @@ model_to_net = {
     "unet": UNet(vgg19, norm),
 }
 checkpoints = {
-    "adain_unet_3ds": f"{exp_path}/3d/unet/gram_loss/lr:0.001-style_weight:1000000.0-weight_decay:0-lr_decay:1-"
-                      f"small_style:True/2022-11-29_18-01-24/checkpoints/epoch_016.ckpt",
-    "adain_unet_3d": f"{exp_path}/3d/unet/gram_loss/lr:0.001-style_weight:1000000.0-weight_decay:0-lr_decay:1-"
-                     f"small_style:False/2022-11-29_18-07-15/checkpoints/epoch_019.ckpt",
-    "adain_unet_2d": f"{exp_path}/2d/unet/gram_loss/lr:0.001-style_weight:1000000.0-weight_decay:0-lr_decay:1"
-                     f"/2022-11-29_17-55-04/checkpoints/epoch_018.ckpt",
-    "unet_3ds": f"{exp_path}/3d/u17/adain_loss/lr:0.0001-style_weight:100.0-weight_decay:0-lr_decay:1-"
-                f"small_style:True/2022-11-29_17-57-54/checkpoints/epoch_016.ckpt",
+    "adain_unet_3ds": f"{exp_path}/adain_unet_3ds_best",
+    "adain_unet_3d": f"{exp_path}/adain_unet_3d_best",
+    "adain_unet_2d": f"{exp_path}/adain_unet_2d_best",
+    "unet_3ds": f"{exp_path}/adain_unet_3ds_best",
 }
 
 

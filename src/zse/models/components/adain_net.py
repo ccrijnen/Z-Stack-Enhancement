@@ -55,10 +55,10 @@ class AdaINNet(nn.Module):
             content_layer: Optional[str] = None,
             style_layers: Optional[List[str]] = None,
             out_channels: int = 1,
-            style_loss_fn: str = "adain"
+            style_loss_fn: str = "stats"
     ):
         super().__init__()
-        assert style_loss_fn in ["adain", "gram"]
+        assert style_loss_fn in ["stats", "gram"]
         if content_layer is None:
             content_layer = content_layer_default
         if style_layers is None:
@@ -81,7 +81,7 @@ class AdaINNet(nn.Module):
         self.output_activation = nn.Sigmoid()
 
         self.loss_fn = nn.L1Loss()
-        self.style_loss = partial(style_loss_adain if style_loss_fn == "adain" else style_loss,
+        self.style_loss = partial(style_loss_adain if style_loss_fn == "stats" else style_loss,
                                   style_layers=style_layers,
                                   style_weights=[1.]*len(style_layers),
                                   loss_fn=self.loss_fn)

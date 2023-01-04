@@ -1,8 +1,0 @@
-_target_: zse.datamodules.brain_volume.BrainVolumeDataModule
-
-data_dir: "/p/fastdata/bigbrains/personal/schiffer1/experiments/2022_bigbrain_1micron/data/kg/vol*/data/BigBrain_VOI_*_02um_tiled/*/*.hdf5"
-destination: "/p/fastdata/bigbrains/personal/crijnen1/data/application"
-train_val_test_split: [264, 16, 32]
-batch_size: 1
-num_workers: 32
-pin_memory: True

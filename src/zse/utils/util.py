@@ -1,141 +1,88 @@
-from typing import Tuple, Optional
+import h5py
+import numpy as np
+import zfocus as zf
+from scipy.ndimage import gaussian_filter
+import torchvision.transforms as T
 
-import matplotlib.pyplot as plt
-import torch
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from torchvision.utils import make_grid
 
-
-def imshow(tensor: torch.Tensor, title: Optional[str] = None,
-           dpi: Optional[int] = None, fname: Optional[str] = None) -> None:
+def read_h5(path: str) -> np.ndarray:
     """
-    Plots a greyscale image from a PyTorch Tensor.
+    Reads hdf5 file from a path string.
 
     Parameters
     ----------
-    tensor : torch.Tensor
-        Image as a PyTorch Tensor of shape (N, C, H, W).
-    title : str, optional
-        If this is provided, add a title to the plot.
-    dpi : int, optional
-        If this is provided, create a new figure with the given dpi.
-    fname : str, optional
-        If this is provided, save the image with the given fname.
+    path : str
+        Path to the hdf5 file.
+
+    Returns
+    -------
+    image : np.ndarray
+        NumPy ndarray containing a z_stack.
     """
-    image = tensor.clone().cpu()
-    image = image[0]
-    if image.size(0) > 1:
-        cmap = None
-        image = image.permute(1, 2, 0)
-    else:
-        cmap = "gray"
-        image = image[0]
-
-    if fname is not None:
-        plt.imsave(fname, image, cmap=cmap, vmin=0, vmax=1)
-
-    if dpi is not None:
-        plt.figure(dpi=dpi)
-
-    plt.imshow(image, cmap=cmap, vmin=0, vmax=1)
-
-    if title is not None:
-        plt.title(title)
-
-    plt.axis("off")
-    # plt.show()
+    with h5py.File(path, "r") as file:
+        z_stack = file["z_stack"][()]
+    return z_stack
 
 
-def grid_show(tensor: torch.Tensor, ncol: Optional[int] = 8, title: Optional[str] = None,
-              dpi: Optional[int] = 200, fname: Optional[str] = None) -> None:
+def get_transform(imsize=None, random_crop=False):
+    t_list = [T.ToTensor()]
+    if imsize is not None:
+        if random_crop:
+            t_list.append(T.RandomCrop(imsize))
+        else:
+            t_list.append(T.CenterCrop(imsize))
+    return T.Compose(t_list)
+
+
+def resample(vol):
+    # Sliding window
+    window_size = 128
+    window_stride = 64
+    win, x_range, y_range = zf.sliding_window_view(vol, (window_size,) * 2, stride=window_stride, axis=(0, 1),
+                                                   return_ranges=True)
+
+    thresh = 0.6
+    bins = 24
+    hist = zf.frequency_histogram(win, (3, 4), bins=bins)
+    norm_hist = hist / hist.max(2, keepdims=True)  # normalize over z-axis
+
+    sharpness = norm_hist[..., -8:].mean(-1)
+
+    start_map, stop_map = z_range_from_threshold(sharpness, thresh, exact=True)
+
+    # interpolate the sharpness back to original values
+    shape = vol.shape[:2]
+    full_start_map = zf.interpolate_index_map(start_map, shape, x_range, y_range)
+    full_stop_map = zf.interpolate_index_map(stop_map, shape, x_range, y_range)
+
+    # smooth the maps
+    full_start_map = gaussian_filter(full_start_map, sigma=31)
+    full_stop_map = gaussian_filter(full_stop_map, sigma=31)
+
+    resampled_vol = zf.resample_vol_irregular(vol, full_start_map, full_stop_map, 20)
+    return resampled_vol
+
+
+def z_range_from_threshold(values, thresh, exact=False):
+    """Z-range from percentile.
+
+    Args:
+        values: Array[d0, d1, ..., dn, bins].
+        thresh: Threshold.
+        exact: Whether to determine the exact indices as floats.
+
+    Returns:
+        Start indices, stop indices. Each as Array[d0, d1, ..., dn].
+        Stop indices are one above largest included index.
     """
-    Plots a grid of greyscale images from a PyTorch Tensor.
-
-    Parameters
-    ----------
-    tensor : torch.Tensor
-        Image as a PyTorch Tensor of shape (N, C, H, W).
-    ncol : int, optional
-        Number of columns in the image grid. The default is 8.
-    title : str, optional
-        If this is provided, add a title to the plot.
-    dpi : int, optional
-        Dpi of the pyplot figure. The default is (30, 15)
-    fname : str, optional
-        If this is provided, save the image with the given fname.
-    """
-    tensor = tensor.clone().cpu()
-    grid = make_grid(tensor, nrow=ncol)[0]
-
-    if fname is not None:
-        plt.imsave(fname, grid, cmap="gray", vmin=0, vmax=1)
-
-    plt.figure(dpi=dpi)
-    plt.imshow(grid, cmap="gray", vmin=0, vmax=1)
-
-    if title is not None:
-        plt.title(title, color="white")
-
-    plt.axis("off")
-    plt.show()
-
-
-def plot_cross_section(z_stack: torch.Tensor, idx: Tuple[int, int, int],
-                       reverse: Optional[bool] = False, fname: Optional[str] = None) -> None:
-    """
-    Plots a greyscale cross-section from a 3d z-stack.
-
-    Parameters
-    ----------
-    z_stack : torch.Tensor
-        PyTorch Tensor of shape (1, C, H, W)
-    idx : Tuple[int, int, int]
-        Cross-section index.
-    reverse : bool, optional
-        If this is set to True, change all text color and tick markers to white.
-    fname : str, optional
-        If this is provided, save the image with the given fname.
-    """
-    color = 'black' if not reverse else 'white'
-    z_stack = z_stack.clone().cpu()
-    z, y, x = idx
-    # yx
-    a = z_stack[0, z, :, :]
-    # zx = top
-    b = z_stack[0, :, y, :]
-    # yz = right
-    c = z_stack[0, :, :, x].transpose(0, 1)
-
-    fig, main_ax = plt.subplots(figsize=(12, 12))
-    divider = make_axes_locatable(main_ax)
-    top_ax = divider.append_axes("top", 1.25, pad=0.01, sharex=main_ax)
-    right_ax = divider.append_axes("right", 1.25, pad=0.01, sharey=main_ax)
-
-    main_ax.tick_params(colors=color, which='both')
-    top_ax.tick_params(colors=color, which='both')
-    right_ax.tick_params(colors=color, which='both')
-
-    main_ax.xaxis.set_tick_params(color=color)
-    top_ax.xaxis.set_tick_params(labelbottom=False, color=color)
-    right_ax.yaxis.set_tick_params(labelleft=False, color=color)
-
-    main_ax.set_xlabel('X', color=color)
-    main_ax.set_ylabel('Y', color=color)
-    top_ax.set_ylabel('Z', color=color)
-    right_ax.set_xlabel('Z', color=color)
-
-    main_ax.imshow(a, cmap='gray', vmin=0, vmax=1)
-    top_ax.imshow(b, cmap='gray', vmin=0, vmax=1)
-    right_ax.imshow(c, cmap='gray', vmin=0, vmax=1)
-    main_ax.axhline(y, color='r')
-    main_ax.axvline(x, color='g')
-    top_ax.axhline(z, color='r')
-    right_ax.axvline(z, color='g')
-    main_ax.autoscale(enable=False)
-    right_ax.autoscale(enable=False)
-    top_ax.autoscale(enable=False)
-    right_ax.set_xlim(right=29)
-    top_ax.set_ylim(bottom=29)
-
-    if fname is not None:
-        plt.savefig(fname)
+    values = np.array(values)
+    max_z = values.shape[-1] - 1
+    mask = values >= thresh
+    res = start, stop = np.argmax(mask, axis=-1), max_z - np.argmax(mask[..., ::-1], axis=-1)
+    if exact:
+        res = ()
+        for st in [[start, np.where(start-1 >= 0, start-1, 0)], [stop, np.where(stop+1 <= max_z, stop+1, max_z)]]:
+            a = np.take_along_axis(values, st[0].reshape((values.shape[:-1]) + (1,)), axis=-1)
+            b = np.take_along_axis(values, st[1].reshape((values.shape[:-1]) + (1,)), axis=-1)
+            res += np.where((a - b) > 0, (thresh - b) / (a - b), 0).squeeze() + st[1],
+    return res

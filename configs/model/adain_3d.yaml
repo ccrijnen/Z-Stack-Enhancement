@@ -12,7 +12,7 @@ net:
   content_layer: 'relu4_1'
   style_layers: ['relu1_2', 'relu2_2', 'relu3_4', 'relu4_4']
   out_channels: 1
-  style_loss_fn: 'adain'
+  style_loss_fn: 'stats'
 lr: 1e-4
 weight_decay: 0
 lr_decay: 1
